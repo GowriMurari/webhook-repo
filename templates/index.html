@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webhook Event Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        h1 {
+            color: #444;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>GitHub Webhook Events</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Author</th>
+                <th>Action</th>
+                <th>From Branch</th>
+                <th>To Branch</th>
+                <th>Timestamp (UTC)</th>
+            </tr>
+        </thead>
+        <tbody id="event-table">
+            <!-- Data goes here -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch('/data');
+            const events = await response.json();
+            const table = document.getElementById('event-table');
+            table.innerHTML = '';
+            events.forEach(event => {
+                const row = `<tr>
+                    <td>${event.author}</td>
+                    <td>${event.action}</td>
+                    <td>${event.from}</td>
+                    <td>${event.to}</td>
+                    <td>${event.timestamp}</td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        fetchData();
+        setInterval(fetchData, 15000); // Poll every 15 sec
+    </script>
+</body>
+</html>
