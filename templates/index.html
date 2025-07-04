@@ -1,67 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Webhook Event Viewer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 2rem;
-        }
-        h1 {
-            color: #444;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Webhook Activity Log</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>GitHub Webhook Events</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Author</th>
-                <th>Action</th>
-                <th>From Branch</th>
-                <th>To Branch</th>
-                <th>Timestamp (UTC)</th>
-            </tr>
-        </thead>
-        <tbody id="event-table">
-            <!-- Data goes here -->
-        </tbody>
-    </table>
+  <h1>Webhook Event Log</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Author</th>
+        <th>Action</th>
+        <th>From Branch</th>
+        <th>To Branch</th>
+        <th>Timestamp (UTC)</th>
+      </tr>
+    </thead>
+    <tbody id="log-body">
+      <!-- Data will be dynamically inserted here -->
+    </tbody>
+  </table>
 
-    <script>
-        async function fetchData() {
-            const response = await fetch('/data');
-            const events = await response.json();
-            const table = document.getElementById('event-table');
-            table.innerHTML = '';
-            events.forEach(event => {
-                const row = `<tr>
-                    <td>${event.author}</td>
-                    <td>${event.action}</td>
-                    <td>${event.from}</td>
-                    <td>${event.to}</td>
-                    <td>${event.timestamp}</td>
-                </tr>`;
-                table.innerHTML += row;
-            });
-        }
+  <script>
+    async function loadData() {
+      const res = await fetch('/data');
+      const data = await res.json();
+      const tbody = document.getElementById('log-body');
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.author || 'N/A'}</td>
+          <td>${row.action}</td>
+          <td>${row.from}</td>
+          <td>${row.to}</td>
+          <td>${row.timestamp}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
-        fetchData();
-        setInterval(fetchData, 15000); // Poll every 15 sec
-    </script>
+    loadData();
+    setInterval(loadData, 5000); // Refresh every 5 seconds
+  </script>
 </body>
 </html>
